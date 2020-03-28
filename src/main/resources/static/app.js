@@ -12,19 +12,12 @@ function setConnected(connected) {
     $("#greetings").html("");
 }
 
-function connect() {
-    var socket = new SockJS('/gs-guide-websocket');
-    stompClient = Stomp.over(socket);
-    stompClient.connect({}, function (frame) {
-        setConnected(true);
-        console.log('Connected: ' + frame);
-        stompClient.subscribe('/topic/greetings', function (greeting) {
-            showGreeting(JSON.parse(greeting.body).content);
-        });
-    });
-}
+
 
 function disconnect() {
+
+    stompClient.send("/app/leave", {}, JSON.stringify({'name': $("#name").val()}));
+
     if (stompClient !== null) {
         stompClient.disconnect();
     }
@@ -33,18 +26,41 @@ function disconnect() {
 }
 
 function sendName() {
-    stompClient.send("/app/hello", {}, JSON.stringify({'name': $("#name").val()}));
+    stompClient.send("/app/join", {}, JSON.stringify({'name': $("#name").val()}));
 }
 
-function showGreeting(message) {
-    $("#greetings").append("<tr><td>" + message + "</td></tr>");
-}
+
 
 $(function () {
+
+    function connect() {
+        var socket = new SockJS('/gs-guide-websocket');
+        stompClient = Stomp.over(socket);
+        stompClient.connect({}, function (frame) {
+            setConnected(true);
+            console.log('Connected: ' + frame);
+            stompClient.subscribe('/topic/greetings', function (greeting) {
+                showGreeting(JSON.parse(greeting.body));
+            });
+        });
+    }
+
     $("form").on('submit', function (e) {
         e.preventDefault();
     });
+
+    connect();
     $( "#connect" ).click(function() { connect(); });
     $( "#disconnect" ).click(function() { disconnect(); });
     $( "#send" ).click(function() { sendName(); });
+
+
+    function showGreeting(message) {
+        $("#greetings").empty();
+        $.each(message,function(i,n) {
+            $("#greetings").append("<tr><td>"+ n + " You are No." + i + "</td></tr>");
+            console.log(i+" > "+n);
+        });
+    }
+
 });
