@@ -16,7 +16,7 @@ $(function () {
 
     function disconnect() {
         var queueUser = $.cookie('queueUser');
-        stompClient.send("/app/leave", {}, JSON.stringify({'name': queueUser}));
+        stompClient.send("/app/leave/stock", {}, JSON.stringify({'name': queueUser}));
     
         if (stompClient !== null) {
             stompClient.disconnect();
@@ -29,7 +29,7 @@ $(function () {
     function sendName(timeStamp) {
         var username = $("#name").val() + "-" + timeStamp
         $.cookie('queueUser', username, { expires: 1 });
-        stompClient.send("/app/join", {}, JSON.stringify({'name': username}));
+        stompClient.send("/app/join/stock", {}, JSON.stringify({'name': username}));
     }
 
     function connect() {
@@ -38,13 +38,13 @@ $(function () {
         stompClient.connect({}, function (frame) {
             setConnected(true);
             console.log('Connected: ' + frame);
-            stompClient.subscribe('/topic/greetings', function (greeting) {
+            stompClient.subscribe('/topic/greetings/stock', function (greeting) {
                 showGreeting(JSON.parse(greeting.body));
             });
 
             var queueUser = $.cookie('queueUser');
             if(queueUser) {
-                stompClient.send("/app/status", {}, JSON.stringify());
+                stompClient.send("/app/status/stock", {}, JSON.stringify());
                 $("#user-form").hide();
                 $("#key").show();
                 $("#join").hide();
@@ -86,11 +86,7 @@ $(function () {
                 $("#people_ahead").html(i + " people ahead");
             }
         });
-        // $("#greetings").empty();
-        // $.each(message,function(i,n) {
-        //     $("#greetings").append("<tr><td>"+ n + " You are No." + i + "</td></tr>");
-        //     console.log(i+" > "+n);
-        // });
+
     }
 
 });
