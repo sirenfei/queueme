@@ -16,7 +16,6 @@ public class HelloController {
     @MessageMapping("/join")
 	@SendTo("/topic/greetings")
 	public List<String> join(HelloMessage message) throws Exception {
-        Thread.sleep(1000); // simulated delay
         queue.add(message.getName());
 		return queue;
     }
@@ -24,8 +23,13 @@ public class HelloController {
     @MessageMapping("/leave")
 	@SendTo("/topic/greetings")
 	public  List<String> leave(HelloMessage message) throws Exception {
-        Thread.sleep(1000); // simulated delay
         queue.remove(message.getName());
+		return queue;
+	}
+
+	@MessageMapping("/status")
+	@SendTo("/topic/greetings")
+	public  List<String> status() {
 		return queue;
 	}
 }

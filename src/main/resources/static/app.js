@@ -1,8 +1,7 @@
 var stompClient = null;
 
 function setConnected(connected) {
-    $("#connect").prop("disabled", connected);
-    $("#disconnect").prop("disabled", !connected);
+
     if (connected) {
         $("#conversation").show();
     }
@@ -12,26 +11,26 @@ function setConnected(connected) {
     $("#greetings").html("");
 }
 
-
-
-function disconnect() {
-
-    stompClient.send("/app/leave", {}, JSON.stringify({'name': $("#name").val()}));
-
-    if (stompClient !== null) {
-        stompClient.disconnect();
-    }
-    setConnected(false);
-    console.log("Disconnected");
-}
-
-function sendName() {
-    stompClient.send("/app/join", {}, JSON.stringify({'name': $("#name").val()}));
-}
-
-
-
 $(function () {
+    connect();
+
+    function disconnect() {
+        var queueUser = $.cookie('queueUser');
+        stompClient.send("/app/leave", {}, JSON.stringify({'name': queueUser}));
+    
+        if (stompClient !== null) {
+            stompClient.disconnect();
+        }
+        setConnected(false);
+        $.removeCookie('queueUser');
+        console.log("Disconnected");
+    }
+
+    function sendName(timeStamp) {
+        var username = $("#name").val() + "-" + timeStamp
+        $.cookie('queueUser', username, { expires: 1 });
+        stompClient.send("/app/join", {}, JSON.stringify({'name': username}));
+    }
 
     function connect() {
         var socket = new SockJS('/gs-guide-websocket');
@@ -42,25 +41,56 @@ $(function () {
             stompClient.subscribe('/topic/greetings', function (greeting) {
                 showGreeting(JSON.parse(greeting.body));
             });
+
+            var queueUser = $.cookie('queueUser');
+            if(queueUser) {
+                stompClient.send("/app/status", {}, JSON.stringify());
+                $("#user-form").hide();
+                $("#key").show();
+                $("#join").hide();
+                $("#leave").show();
+            }
         });
     }
 
-    $("form").on('submit', function (e) {
-        e.preventDefault();
+    $("#join").click(function(){
+        sendName(Math.floor(Math.random()*100000000));
+        $("#user-form").hide();
+        $("#key").show();
+        $("#join").hide();
+        $("#leave").show();
     });
 
-    connect();
+    $("#leave").click(function(){
+        var queueUser = $.cookie('queueUser');
+        disconnect();
+        console.log(queueUser)
+        $("#user-form").show();
+        $("#key").hide();
+        $("#join").show();
+        $("#leave").hide();
+    });
+
+
+
+    
     $( "#connect" ).click(function() { connect(); });
     $( "#disconnect" ).click(function() { disconnect(); });
     $( "#send" ).click(function() { sendName(); });
 
 
     function showGreeting(message) {
-        $("#greetings").empty();
+        var queueUser = $.cookie('queueUser'); 
         $.each(message,function(i,n) {
-            $("#greetings").append("<tr><td>"+ n + " You are No." + i + "</td></tr>");
-            console.log(i+" > "+n);
+            if(n == queueUser) {
+                $("#people_ahead").html(i + " people ahead");
+            }
         });
+        // $("#greetings").empty();
+        // $.each(message,function(i,n) {
+        //     $("#greetings").append("<tr><td>"+ n + " You are No." + i + "</td></tr>");
+        //     console.log(i+" > "+n);
+        // });
     }
 
 });

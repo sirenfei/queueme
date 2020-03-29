@@ -8,44 +8,30 @@
     <script src="/webjars/sockjs-client/sockjs.min.js"></script>
     <script src="/webjars/stomp-websocket/stomp.min.js"></script>
     <script src="/app.js"></script>
+    <script src="/jquery.cookie.js"></script>
+    <style>
+		body {
+			padding: 50px 200px 50px 200px
+		}
+	</style>
 </head>
 <body>
 <noscript><h2 style="color: #ff0000">Seems your browser doesn't support Javascript! Websocket relies on Javascript being
     enabled. Please enable
     Javascript and reload this page!</h2></noscript>
-<div id="main-content" class="container">
-    <div class="row">
-        <div class="col-md-4">
-            <form class="form-inline">
-                <div class="form-group">
-                    <button id="connect" class="btn btn-default" type="submit">Join the Queue</button>
-                    <button id="disconnect" class="btn btn-default" type="submit">Leave</button>
-                </div>
-            </form>
-        </div>
-        <div class="col-md-6">
-            <form class="form-inline">
-                <div class="form-group">
-                    <label for="name">What is your name?</label>
-                    <input type="text" id="name" class="form-control" placeholder="Your name here...">
-                </div>
-                <button id="send" class="btn btn-default" type="submit">Send</button>
-            </form>
-        </div>
+
+    <div class="form-group" id="user-form">
+        <label for="name"><h1>Please input your full name: </h1></label><br/>
+        <input type="text" id="name" class="form-control" placeholder="Your name here...">
     </div>
-    <div class="row">
-        <div class="col-md-8">
-            <table id="conversation" class="table table-striped">
-                <thead>
-                <tr>
-                    <th>Queue:</th>
-                </tr>
-                </thead>
-                <tbody id="greetings">
-                </tbody>
-            </table>
-        </div>
+
+    <button id="join" type="button" class="btn btn-primary">Join the Queue</button>
+    <button id="leave" type="button" class="btn btn-danger" style="display:none">Leave the Queue</button>
+    <p></p>
+    <div class="form-group">
+        <label for="key" id="key" style="display:none"><h1 id="people_ahead"></h1></label>
+        <input type="hidden" id="key" class="form-control" />
     </div>
-</div>
+
 </body>
 </html>
